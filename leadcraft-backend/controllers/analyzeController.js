@@ -7,6 +7,8 @@ exports.analyzeLead = async (req, res) => {
     try {
         const { businessName, category, location, bio, caption } = req.body
 
+        console.log("Analyzing lead:", businessName)
+
         if (!businessName || !bio || !caption) {
             return res.status(400).json({
                 error: "Missing required fields"
