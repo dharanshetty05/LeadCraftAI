@@ -30,3 +30,30 @@ Return response in JSON format:
 }
 `
 }
+
+exports.createMessagePrompt = (data) => {
+
+return `
+You help generate personalized outreach messages.
+
+Business Name: ${data.businessName}
+
+Business Summary:
+${data.summary}
+
+Opportunity:
+${data.opportunity}
+
+Service:
+Conversion-focused websites for small businesses.
+
+Write a short WhatsApp outreach message.
+
+Rules:
+- Friendly tone
+- Mention the business specifically
+- Mention the opportunity
+- Do not sound like spam
+- Keep under 70 words
+`
+}

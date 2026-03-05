@@ -1,28 +1,74 @@
 // External services (Groq AI) here
 
 const Groq = require("groq-sdk")
-const { createAnalysisPrompt } = require("../prompts/prompts")
+const { createAnalysisPrompt, createMessagePrompt } = require("../prompts/prompts")
 
 const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 })
 
 exports.runBusinessAnalysis = async (data) => {
-    const prompt = createAnalysisPrompt(data)
+    
+    // Stage 1: Business Analysis
+    const analysisPrompt = createAnalysisPrompt(data)
 
-    const completion = await groq.chat.completions.create({
+    const analysisResponse = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: [
             {
                 role: "user",
-                content: prompt
+                content: analysisPrompt
             }
         ]
     })
 
-    const text = completion.choices[0].message.content
+    const analysisText = analysisResponse.choices[0].message.content
+
+    let analysisJSON
+
+    try {
+        analysisJSON = JSON.parse(analysisText)
+    } catch (error) {
+
+    const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+
+    if (!jsonMatch) {
+        throw new Error("Invalid AI response format")
+    }
+
+    analysisJSON = JSON.parse(jsonMatch[0])
+    }
+
+    // Stage 2: Message Generation
+    const messagePrompt = createMessagePrompt({
+        businessName: data.businessName,
+        summary: analysisJSON.summary,
+        opportunity: analysisJSON.opportunity
+    })
+
+    const messageResponse = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+            {
+                role: "user",
+                content: messagePrompt
+            }
+        ]
+    })
+
+    let messageText = messageResponse.choices[0].message.content.trim()
+
+    if (
+        (messageText.startsWith('"') && messageText.endsWith('"')) ||
+        (messageText.startsWith("'") && messageText.endsWith("'"))
+    ) {
+        messageText = messageText.slice(1, -1)
+    }
 
     return {
-        raw: text
+        summary: analysisJSON.summary,
+        opportunity: analysisJSON.opportunity,
+        message: messageText
     }
+
 }
