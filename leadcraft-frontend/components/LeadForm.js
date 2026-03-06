@@ -13,6 +13,8 @@ export default function LeadForm() {
     })
 
     const [result, setResult] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [copied, setCopied] = useState(false)
 
     const handleChange = (e) => {
         setFormData({
@@ -23,6 +25,8 @@ export default function LeadForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+
+        setLoading(true)
 
         console.log("Submitting:", formData)
 
@@ -38,9 +42,22 @@ export default function LeadForm() {
             const data = await response.json()
 
             setResult(data)
+            setLoading(false)
         } catch (error) {
             console.error("Error:", error)
+            setLoading(false)
         }
+    }
+
+    const handleCopy = () => {
+        if (!result) return
+
+        navigator.clipboard.writeText(result.message)
+        setCopied(true)
+
+        setTimeout(() => {
+            setCopied(false)
+        }, 2000)
     }
 
     return (
@@ -104,31 +121,71 @@ export default function LeadForm() {
 
             <button
                 type="submit"
-                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+                disabled={loading}
+                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 disabled:bg-gray-400"
             >
-                Analyze Lead
+                {loading ? "Analyzing..." : "Analyze Lead"}
             </button>
         </form>
 
-        {result && (
-            <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-xl mt-6 space-y-4">
-                <h2 className="text-xl font-semibold">Analysis Result</h2>
-                    <div>
-                        <h3 className="font-semibold">Business Summary</h3>
-                        <p className="text-gray-700">{result.summary}</p>
-                    </div>
-
-                    <div>
-                        <h3 className="font-semibold">Opportunity</h3>
-                        <p className="text-gray-700">{result.opportunity}</p>
-                    </div>
-
-                    <div>
-                        <h3 className="font-semibold">Outreach Message</h3>
-                        <p className="text-gray-700">{result.message}</p>
-                    </div>
-            </div>
+        {loading && (
+            <p className="text-gray-600 text-sm">
+                Analyzing business with AI...
+            </p>
         )}
+
+        {result && (
+            <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-xl border-t border-gray-300 mt-6 space-y-4">
+                <h2 className="text-xl font-semibold">Analysis Result</h2>
+                    <div className="bg-gray-50 p-4 rounded">
+                        <h3 className="font-semibold text-lg mb-1">Business Summary</h3>
+                        <p className="text-gray-700 leading-relaxed">{result.summary}</p>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded">
+                        <h3 className="font-semibold text-lg mb-1">Opportunity</h3>
+                        <p className="text-gray-700 leading-relaxed">{result.opportunity}</p>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded">
+                        <h3 className="font-semibold text-lg mb-1">Outreach Message</h3>
+                        <div className="bg-green-50 border border-green-200 p-4 rounded text-gray-800 leading-relaxed">
+                            {result.message}
+                        </div>
+
+                        <button
+                            onClick={handleCopy}
+                            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                            Copy Message
+                        </button>
+
+                        {copied && (
+                            <p className="text-green-600 text-sm mt-1">
+                                Copied to clipboard ✓
+                            </p>
+                        )}
+                    </div>
+                <button
+                    onClick={() => {
+                        setResult(null)
+                        setCopied(false)
+                        setFormData({
+                        businessName: "",
+                        category: "",
+                        location: "",
+                        bio: "",
+                        caption: ""
+                        })
+                    }}
+                    className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"
+                >
+                    Analyze Another Lead
+                </button>
+            </div>
+            
+        )}
+
         </div>
     )
 }
