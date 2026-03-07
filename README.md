@@ -13,7 +13,7 @@ outreach message.
 
 ------------------------------------------------------------------------
 
-# Problem
+## Problem
 
 Cold outreach usually involves three repetitive steps:
 

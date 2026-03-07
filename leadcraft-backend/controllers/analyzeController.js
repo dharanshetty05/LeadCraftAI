@@ -2,6 +2,7 @@
 
 const { runBusinessAnalysis } = require("../services/aiService")
 const { extractUsername, fetchInstagramData } = require("../services/instagramService")
+const leadService = require("../services/leadService")
 
 exports.analyzeLead = async (req, res) => {
 
@@ -27,13 +28,19 @@ exports.analyzeLead = async (req, res) => {
 
         if (instagramUrl) {
             instagramUsername = extractUsername(instagramUrl)
-            instagramData = await fetchInstagramData(instagramUsername)
 
+            if (instagramUsername) {
+                const existingLead = await leadService.findLeadByUsername(instagramUsername)
+                if (existingLead) {
+                    console.log("Lead already exists in database")
+                    return res.json(existingLead)
+                }
+            }
+
+            instagramData = await fetchInstagramData(instagramUsername)
             console.log("Instagram Data:", instagramData)
 
-            if (!businessName && instagramData.displayName) {
-                businessName = instagramData.displayName
-            }
+            if (!businessName && instagramData.displayName) businessName = instagramData.displayName
             if (!bio) bio = instagramData.bio
             if (!caption) caption = instagramData.caption
         }
@@ -42,7 +49,23 @@ exports.analyzeLead = async (req, res) => {
             businessName, category, location, bio, caption
         })
 
-        res.json({ ...result, instagramData })
+        const newLead = await leadService.createLead({
+            businessName,
+            instagramUsername,
+            displayName: instagramData?.displayName,
+            instagramUrl,
+            bio,
+            category,
+            location,
+            followers: instagramData?.followers,
+            posts: instagramData?.posts,
+            summary: result.summary,
+            opportunity: result.opportunity,
+            message: result.message,
+            status: "NEW"
+        })
+
+        res.json({ newLead })
     } catch (error) {
         console.error(error)
         res.status(500).json({
