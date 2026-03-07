@@ -9,66 +9,70 @@ const groq = new Groq({
 
 exports.runBusinessAnalysis = async (data) => {
     
-    // Stage 1: Business Analysis
-    const analysisPrompt = createAnalysisPrompt(data)
+    try{
+        // Stage 1: Business Analysis
+        const analysisPrompt = createAnalysisPrompt(data)
 
-    const analysisResponse = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-            {
-                role: "user",
-                content: analysisPrompt
+        const analysisResponse = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.4,
+            messages: [
+                {
+                    role: "user",
+                    content: analysisPrompt
+                }
+            ]
+        })
+
+        const analysisText = analysisResponse.choices[0].message.content
+        let analysisJSON
+        try {
+            analysisJSON = JSON.parse(analysisText)
+            } catch (error) {
+
+            const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+            if (!jsonMatch) {
+                throw new Error("Invalid AI response format")
             }
-        ]
-    })
 
-    const analysisText = analysisResponse.choices[0].message.content
+            analysisJSON = JSON.parse(jsonMatch[0])
+        }
 
-    let analysisJSON
+        // Stage 2: Message Generation
+        const messagePrompt = createMessagePrompt({
+            businessName: data.businessName,
+            summary: analysisJSON.summary,
+            opportunity: analysisJSON.opportunity
+        })
 
-    try {
-        analysisJSON = JSON.parse(analysisText)
-    } catch (error) {
+        const messageResponse = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.4,
+            messages: [
+                {
+                    role: "user",
+                    content: messagePrompt
+                }
+            ]
+        })
 
-    const jsonMatch = analysisText.match(/\{[\s\S]*\}/)
+        let messageText = messageResponse.choices[0].message.content.trim()
+        if (
+            (messageText.startsWith('"') && messageText.endsWith('"')) ||
+            (messageText.startsWith("'") && messageText.endsWith("'"))
+        ) {
+            messageText = messageText.slice(1, -1)
+        }
 
-    if (!jsonMatch) {
-        throw new Error("Invalid AI response format")
-    }
+        return {
+            summary: analysisJSON.summary,
+            opportunity: analysisJSON.opportunity,
+            message: messageText
+        }
 
-    analysisJSON = JSON.parse(jsonMatch[0])
-    }
-
-    // Stage 2: Message Generation
-    const messagePrompt = createMessagePrompt({
-        businessName: data.businessName,
-        summary: analysisJSON.summary,
-        opportunity: analysisJSON.opportunity
-    })
-
-    const messageResponse = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-            {
-                role: "user",
-                content: messagePrompt
-            }
-        ]
-    })
-
-    let messageText = messageResponse.choices[0].message.content.trim()
-
-    if (
-        (messageText.startsWith('"') && messageText.endsWith('"')) ||
-        (messageText.startsWith("'") && messageText.endsWith("'"))
-    ) {
-        messageText = messageText.slice(1, -1)
-    }
-
-    return {
-        summary: analysisJSON.summary,
-        opportunity: analysisJSON.opportunity,
-        message: messageText
+    } catch(error) {
+        console.error("AI error:", error)
+        throw new Error("AI processing failed")
     }
 
 }

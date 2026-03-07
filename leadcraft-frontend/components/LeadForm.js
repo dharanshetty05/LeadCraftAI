@@ -8,6 +8,7 @@ export default function LeadForm() {
         businessName: "",
         category: "",
         location: "",
+        instagramUrl: "",
         bio: "",
         caption: ""
     })
@@ -25,10 +26,22 @@ export default function LeadForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
         setLoading(true)
 
-        console.log("Submitting:", formData)
+        let payload = {
+            businessName: formData.businessName,
+            category: formData.category,
+            location: formData.location
+        }
+        
+        if (formData.instagramUrl) {
+            payload.instagramUrl = formData.instagramUrl
+        } else {
+            payload.bio  = formData.bio
+            payload.caption = formData.caption
+        }
+
+        console.log("Submitting:", payload)
 
         try {
             const response = await fetch("http://localhost:5000/api/analyze", {
@@ -36,7 +49,7 @@ export default function LeadForm() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             })
 
             const data = await response.json()
@@ -82,12 +95,30 @@ export default function LeadForm() {
 
             <input
                 type="text"
+                name="instagramUrl"
+                placeholder="Instgram Profile URL (optional)"
+                value={formData.instagramUrl}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+            />
+
+            {formData.instagramUrl && (
+                <p className="text-xs text-green-600">
+                    Instagram profile detected. Bio and captions will be extracted automatically.
+                </p>
+            )}
+
+            <p className="text-xs text-gray-500">
+                Paste Instagram URL to auto-extract bio and captions
+            </p>
+
+            <input
+                type="text"
                 name="category"
                 placeholder="Category"
                 value={formData.category}
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
-                required
             />
 
             <input
@@ -97,27 +128,29 @@ export default function LeadForm() {
                 value={formData.location}
                 onChange={handleChange}
                 className="w-full border p-2 rounded"
-                required
             />
 
-            <textarea
-                name="bio"
-                placeholder="Instagram Bio"
-                value={formData.bio}
-                onChange={handleChange}
-                className="w-full border p-2 rounded"
-                rows="3"
-                required
-            />
-
-            <textarea                                name="caption"
-                placeholder="Sample Post Caption"
-                value={formData.caption}
-                onChange={handleChange}
-                className="w-full border p-2 rounded"
-                rows="3"
-                required
-            />
+            {!formData.instagramUrl && (
+                <>
+                    <textarea
+                        name="bio"
+                        placeholder="Instagram Bio"
+                        value={formData.bio}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                        rows="3"
+                    />
+        
+                    <textarea
+                        name="caption"
+                        placeholder="Sample Post Caption"
+                        value={formData.caption}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                        rows="3"
+                    />
+                </>
+            )}
 
             <button
                 type="submit"
@@ -137,6 +170,34 @@ export default function LeadForm() {
         {result && (
             <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-xl border-t border-gray-300 mt-6 space-y-4">
                 <h2 className="text-xl font-semibold">Analysis Result</h2>
+
+                    {result.instagramData && (
+                        <div className="bg-blue-50 border border-blue-200 p-4 rounded">
+                            <h3 className="font-semibold text-lg mb-2">
+                            Instagram Profile Detected
+                            </h3>
+
+                            <p className="text-sm">
+                            <strong>Name:</strong> {result.instagramData.displayName}
+                            </p>
+
+                            <p className="text-sm">
+                            <strong>Followers:</strong> {result.instagramData.followers}
+                            </p>
+
+                            <p className="text-sm">
+                            <strong>Posts:</strong> {result.instagramData.posts}
+                            </p>
+
+                            <p className="text-sm mt-2">
+                            <strong>Bio:</strong>
+                            </p>
+
+                            <p className="text-gray-700 whitespace-pre-line">
+                            {result.instagramData.bio}
+                            </p>
+                        </div>
+                    )}
                     <div className="bg-gray-50 p-4 rounded">
                         <h3 className="font-semibold text-lg mb-1">Business Summary</h3>
                         <p className="text-gray-700 leading-relaxed">{result.summary}</p>
@@ -171,11 +232,12 @@ export default function LeadForm() {
                         setResult(null)
                         setCopied(false)
                         setFormData({
-                        businessName: "",
-                        category: "",
-                        location: "",
-                        bio: "",
-                        caption: ""
+                            businessName: "",
+                            category: "",
+                            location: "",
+                            instagramUrl: "",
+                            bio: "",
+                            caption: ""
                         })
                     }}
                     className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"
