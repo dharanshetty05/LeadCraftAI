@@ -1,8 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function LeadForm() {
+
+    const router = useRouter()
 
     const [formData, setFormData] = useState({
         businessName: "",
@@ -16,6 +19,7 @@ export default function LeadForm() {
     const [result, setResult] = useState(null)
     const [loading, setLoading] = useState(false)
     const [copied, setCopied] = useState(false)
+    const [success, setSuccess] = useState(false)
 
     const handleChange = (e) => {
         setFormData({
@@ -56,6 +60,7 @@ export default function LeadForm() {
 
             setResult(data)
             setLoading(false)
+            setSuccess(true)
         } catch (error) {
             console.error("Error:", error)
             setLoading(false)
@@ -167,6 +172,12 @@ export default function LeadForm() {
             </p>
         )}
 
+        {success && (
+            <div className="bg-green-100 text-green-800 p-3 rounded mb-4">
+                ✓ Lead analyzed and saved successfully
+            </div>
+        )}
+
         {result && (
             <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-xl border-t border-gray-300 mt-6 space-y-4">
                 <h2 className="text-xl font-semibold">Analysis Result</h2>
@@ -231,6 +242,7 @@ export default function LeadForm() {
                     onClick={() => {
                         setResult(null)
                         setCopied(false)
+                        setSuccess(false)
                         setFormData({
                             businessName: "",
                             category: "",
@@ -243,6 +255,13 @@ export default function LeadForm() {
                     className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"
                 >
                     Analyze Another Lead
+                </button>
+
+                <button
+                    onClick={() => router.push("/dashboard")}
+                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                    View Dashboard
                 </button>
             </div>
             

@@ -12,7 +12,7 @@ const createLead = async (leadData) => {
 }
 
 const getAllLeads = async () => {
-    const leads = await Lead.find().sort()({ createdAt: -1 })
+    const leads = await Lead.find({}).sort({ createdAt: -1 })
     return leads
 }
 
@@ -20,8 +20,13 @@ const updateLeadStatus = async (leadId, status) => {
     const lead = await Lead.findByIdAndUpdate(
         leadId,
         { status },
-        { new: true }
+        { returnDocument: "after",  runValidators: true }
     )
+    return lead
+}
+
+const getLeadById = async (id) => {
+    const lead = await Lead.findById(id)
     return lead
 }
 
@@ -29,5 +34,6 @@ module.exports = {
     findLeadByUsername,
     createLead,
     getAllLeads,
-    updateLeadStatus
+    updateLeadStatus,
+    getLeadById
 }

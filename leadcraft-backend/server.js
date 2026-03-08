@@ -5,6 +5,7 @@ require("dotenv").config()
 const connectDB = require("./config/db")
 
 const analyzeRoute = require("./routes/analyzeRoute")
+const leadRoute = require("./routes/leadRoutes")
 
 const app = express()
 
@@ -14,6 +15,7 @@ app.use(express.json())
 connectDB()
 
 app.use("/api/analyze", analyzeRoute)
+app.use("/api/leads", leadRoute)
 
 const PORT = process.env.PORT || 5000
 
