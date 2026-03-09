@@ -61,6 +61,8 @@ exports.analyzeLead = async (req, res) => {
             posts: parseInt(instagramData?.posts),
             summary: result.summary,
             opportunity: result.opportunity,
+            opportunityScore: result.opportunityScore,
+            websiteDetected: result.websiteDetected,
             message: result.message,
             status: "NEW"
         })

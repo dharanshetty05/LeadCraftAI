@@ -22,11 +22,18 @@ Identify:
 3. Whether they appear to have a website
 4. One opportunity where a website could help them
 
+Rules:
+- Businesses without a website and active social presence should score HIGH.
+- Businesses that may already have a website score LOW.
+- Otherwise score MEDIUM.
+
 Return response in JSON format:
 
 {
 "summary": "",
-"opportunity": ""
+"opportunity": "",
+"opportunityScore": "HIGH | MEDIUM | LOW",
+"websiteDetected": true or false
 }
 `
 }

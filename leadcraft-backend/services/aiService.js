@@ -64,9 +64,13 @@ exports.runBusinessAnalysis = async (data) => {
             messageText = messageText.slice(1, -1)
         }
 
+        console.log("AI ANALYSIS JSON:", analysisJSON)
+        
         return {
             summary: analysisJSON.summary,
             opportunity: analysisJSON.opportunity,
+            opportunityScore: analysisJSON.opportunityScore || "MEDIUM",
+            websiteDetected: analysisJSON.websiteDetected ?? false,
             message: messageText
         }
 

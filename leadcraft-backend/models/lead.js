@@ -49,6 +49,15 @@ const LeadSchema = new mongoose.Schema(
             enum: ["NEW", "MESSAGE_READY", "MESSAGED", "REPLIED"],
             default: "NEW",
         },
+        opportunityScore: {
+            type: String,
+            enum: ["HIGH", "MEDIUM", "LOW"],
+            default: "MEDIUM"
+        },
+        websiteDetected: {
+            type: Boolean,
+            default: false
+        },
     },
     {
         timestamps: true
