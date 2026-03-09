@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import LeadCard from "@/components/LeadCard"
+import DashboardMetrics from "@/components/DashboardMetrics"
 
 export default function Dashboard() {
 
@@ -52,8 +53,10 @@ export default function Dashboard() {
         <div className="p-6">
 
             <h1 className="text-3xl font-bold mb-6">
-                Lead Dashboard
+                LeadCraftAI Dashboard
             </h1>
+
+            <DashboardMetrics />
 
             {leads.length === 0 && (
                 <p>No leads found</p>
