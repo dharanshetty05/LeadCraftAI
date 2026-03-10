@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import LeadCard from "@/components/LeadCard"
 import DashboardMetrics from "@/components/DashboardMetrics"
 import LeadSearchBar from "@/components/LeadSearchBar"
+import LeadDetailModal from "@/components/LeadDetailModal"
 
 export default function Dashboard() {
 
@@ -11,6 +12,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
     const [statusFilter, setStatusFilter] = useState("")
+    const [selectedLead, setSelectedLead] = useState(null)
 
     const fetchLeads = async () => {
         try {
@@ -62,6 +64,14 @@ export default function Dashboard() {
         }
     }
 
+    const updateLeadMessage = (updatedLead) => {
+        setLeads((prevLeads) => 
+            prevLeads.map((lead) => 
+                lead._id === updatedLead._id ? updatedLead : lead
+            )
+        )
+        setSelectedLead(updatedLead)
+    }
     return (
         <div className="p-6">
 
@@ -120,9 +130,17 @@ export default function Dashboard() {
 
             <div className="grid gap-6">
                 {leads.map((lead) => (
-                    <LeadCard key={lead._id} lead={lead} updateStatus={updateStatus} />
+                    <LeadCard key={lead._id} lead={lead} updateStatus={updateStatus} openLead={setSelectedLead} />
                 ))}
             </div>
+
+            {selectedLead && (
+                <LeadDetailModal
+                    lead={selectedLead}
+                    onClose={() => setSelectedLead(null)}
+                    onMessageUpdate={updateLeadMessage}
+                />
+            )}
         </div>
     )
 }
