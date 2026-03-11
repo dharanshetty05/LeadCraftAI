@@ -27,6 +27,15 @@ export default function LeadDetailModal({ lead, onClose, onMessageUpdate }) {
             console.error("Message update failed", error)
             setSaving(false)
         }
+
+        const getScoreColor = (score) => {
+            switch(score) {
+                case "HIGH": return "bg-red-500 text-white"
+                case "MEDIUM": return "bg-yellow-400 text-black"
+                case "LOW": return "bg-green-500 text-white"
+                default: return "bg-gray-200"
+            }
+        }
     }
 
     return (
@@ -52,15 +61,29 @@ export default function LeadDetailModal({ lead, onClose, onMessageUpdate }) {
                     Followers: {lead.followers}
                 </p>
 
-                <p className="font-medium mt-3">
-                    Opportunity Score
-                </p>
-                <p>{lead.opportunityScore}</p>
+                <div className="mt-4">
+                    <p className="font-medium mb-1">
+                        Opportunity Score
+                    </p>
+                    <span className={`px-3 py-1 rounded text-sm ${getScoreColor(lead.opportunityScore)}`}>
+                        {lead.opportunityScore}
+                    </span>
+                </div>
 
-                <p className="font-medium mt-3">
-                    Website Detected
-                </p>
-                <p>{lead.websiteDetected ? "Yes" : "No"}</p>
+                <div className="mt-4">
+                    <p className="font-medium mb-1">
+                        Website Presence
+                    </p>
+                    <span
+                        className={`px-3 py-1 rounded text-sm ${
+                            lead.websiteDetected
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                        }`}
+                    >
+                        {lead.websiteDetected ? "Website Detected" : "No Website Detected"}
+                    </span>
+                </div>
 
                 <p className="font-medium mt-3">
                     Summary
