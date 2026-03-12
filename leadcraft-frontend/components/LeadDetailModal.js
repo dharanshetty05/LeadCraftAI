@@ -27,14 +27,14 @@ export default function LeadDetailModal({ lead, onClose, onMessageUpdate }) {
             console.error("Message update failed", error)
             setSaving(false)
         }
+    }
 
-        const getScoreColor = (score) => {
-            switch(score) {
-                case "HIGH": return "bg-red-500 text-white"
-                case "MEDIUM": return "bg-yellow-400 text-black"
-                case "LOW": return "bg-green-500 text-white"
-                default: return "bg-gray-200"
-            }
+    const getScoreColor = (score) => {
+        switch(score) {
+            case "HIGH": return "bg-red-500 text-white"
+            case "MEDIUM": return "bg-yellow-400 text-black"
+            case "LOW": return "bg-green-500 text-white"
+            default: return "bg-gray-200"
         }
     }
 

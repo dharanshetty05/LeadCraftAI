@@ -72,12 +72,30 @@ export default function Dashboard() {
         )
         setSelectedLead(updatedLead)
     }
-    return (
-        <div className="p-6">
 
-            <h1 className="text-3xl font-bold mb-6">
-                LeadCraftAI Dashboard
-            </h1>
+    const sortLeadsByScore = (leads) => {
+        const scorePriority = {
+            HIGH: 1,
+            MEDIUM: 2,
+            LOW: 3
+        }
+        return [...leads].sort(
+            (a,b) => scorePriority[a.opportunityScore] - scorePriority[b.opportunityScore]
+        )
+    }
+
+    return (
+        <div className="max-w-7xl mx-auto p-6">
+
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold">
+                    LeadCraft AI Dashboard
+                </h1>
+
+                <p className="text-gray-500 mt-1">
+                    Analyze, prioritize and manage your outreach leads
+                </p>
+            </div>
 
             <DashboardMetrics />
 
@@ -125,11 +143,16 @@ export default function Dashboard() {
             </div>
 
             {leads.length === 0 && (
-                <p>No leads found</p>
+                <div className="text-center text-gray-500 mt-12">
+                    <p className="text-lg">No leads found</p>
+                    <p className="text-sm mt-1">
+                        Analyze an Instagram profile to start generating leads.
+                    </p>
+                </div>
             )}
 
-            <div className="grid gap-6">
-                {leads.map((lead) => (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {sortLeadsByScore(leads).map((lead) => (
                     <LeadCard key={lead._id} lead={lead} updateStatus={updateStatus} openLead={setSelectedLead} />
                 ))}
             </div>
