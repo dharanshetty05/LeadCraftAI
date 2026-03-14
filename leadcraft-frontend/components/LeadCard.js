@@ -39,10 +39,23 @@ export default function LeadCard({ lead, updateStatus, openLead }) {
         }
     }
 
+    const getLeadPriority = (lead) => {
+        if (lead.opportunityScore === "HIGH" && !lead.websiteDetected) {
+            return { label: "HOT", color: "bg-red-600 text-white" }
+        }
+        if (lead.opportunityScore === "MEDIUM" && !lead.websiteDetected) {
+            return { label: "GOOD", color: "bg-orange-400 text-black" }
+        }
+
+        return { label: "LOW", color: "bg-gray-300 text-black" }
+    }
+
+    const priority = getLeadPriority(lead)
+
     return (
         <div
             onClick={() => openLead(lead)}
-            className="border rounded-lg p-4 shadow hover:shadow-lg cursor-pointer transition"
+            className={`border rounded-lg p-4 shadow hover:shadow-lg cursor-pointer transition ${priority.label === "HOT" ? "border-red-400 bg-red-50" : ""} `}
         >
 
             {/* Header */}
@@ -64,6 +77,14 @@ export default function LeadCard({ lead, updateStatus, openLead }) {
                     {lead.status}
                 </span>
 
+                <div className="flex gap-2 items-center">
+                    <span className={`px-2 py-1 text-xs rounded ${priority.color}`}>
+                        {priority.label}
+                    </span>
+                    <span className={`px-3 py-1 text-xs rounded ${getStatusColor(lead.status)}`}>
+                        {lead.status}
+                    </span>
+                </div>
             </div>
 
 

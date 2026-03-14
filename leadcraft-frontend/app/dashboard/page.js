@@ -74,14 +74,17 @@ export default function Dashboard() {
     }
 
     const sortLeadsByScore = (leads) => {
-        const scorePriority = {
+        const priority = {
             HIGH: 1,
             MEDIUM: 2,
             LOW: 3
         }
-        return [...leads].sort(
-            (a,b) => scorePriority[a.opportunityScore] - scorePriority[b.opportunityScore]
-        )
+        return [...leads].sort((a, b) => {
+            if (a.websiteDetected !== b.websiteDetected) {
+                return a.websiteDetected ? 1 : -1
+            }
+            return priority[a.opportunityScore] - priority[b.opportunityScore]
+        })
     }
 
     return (
