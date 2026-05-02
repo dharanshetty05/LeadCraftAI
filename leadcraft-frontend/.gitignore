@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+app_structure.txt
+component_structure.txt
+leadcraft-backend/BE_folder.txt
+leadcraft-frontend/components_structure.txt
